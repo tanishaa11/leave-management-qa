@@ -11,19 +11,52 @@ following STLC.
 - Track remaining leave balance per employee
 
 ## Tech Stack
-Python, FastAPI, SQLAlchemy, SQLite, Docker, openpyxl (for QA reports)
+| Layer | Technology |
+|---|---|
+| Language | Python 3.11 |
+| API Framework | FastAPI |
+| ORM | SQLAlchemy |
+| Database | SQLite |
+| Containerization | Docker |
+| QA Reporting | openpyxl (Excel reports), Chart.js (HTML dashboard) |
 
-## Project Structure
+## Folder Structure
 ```
-main.py, models.py, database.py     — the API under test
-Dockerfile, requirements.txt        — run it
-QA_Documentation/
-  Test_Plan.md                      — scope, strategy, entry/exit criteria
-  Test_Cases.xlsx                   — Functional / Regression / Smoke suites (14 TCs)
-  Bug_Report_Log.xlsx               — 5 defects found, with repro steps & severity
-  Test_Summary_Dashboard.html       — pass/fail & defect-severity summary
-scripts/                            — scripts used to generate the QA reports
+leave-management-system/
+├── main.py
+├── models.py
+├── database.py
+├── requirements.txt
+├── Dockerfile
+├── README.md
+├── QA_Documentation/
+│   ├── Test_Plan.md
+│   ├── Test_Cases.xlsx
+│   ├── Bug_Report_Log.xlsx
+│   └── Test_Summary_Dashboard.html
+└── scripts/
+    ├── build_test_cases.py
+    └── build_bug_log.py
 ```
+
+## What Each File Does
+
+**Application**
+- `main.py` — FastAPI app; defines all API endpoints (employees, leave requests, approve/reject) and request/response schemas
+- `models.py` — SQLAlchemy models for the `Employee` and `LeaveRequest` database tables
+- `database.py` — database connection setup and session handling
+- `requirements.txt` — Python dependencies
+- `Dockerfile` — containerizes the app for `docker build`/`docker run`
+
+**QA_Documentation/**
+- `Test_Plan.md` — scope, test strategy, entry/exit criteria, and a results summary
+- `Test_Cases.xlsx` — the full test case suite across three sheets: Functional, Regression, Smoke (14 test cases with steps, expected/actual results, status, priority)
+- `Bug_Report_Log.xlsx` — the 5 defects found during execution, with repro steps, severity, priority, and environment
+- `Test_Summary_Dashboard.html` — a visual pass/fail and defect-severity summary, built with Chart.js
+
+**scripts/**
+- `build_test_cases.py` — generates `Test_Cases.xlsx` (openpyxl)
+- `build_bug_log.py` — generates `Bug_Report_Log.xlsx` (openpyxl)
 
 ## Running It
 ```bash
