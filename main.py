@@ -52,6 +52,12 @@ class LeaveRequestOut(BaseModel):
 # ---------- Employee endpoints ----------
 @app.post("/employees", response_model=EmployeeOut)
 def create_employee(employee: EmployeeCreate, db: Session = Depends(get_db)):
+    # FIX (BUG-01): check for an existing email up front and return a clean
+    # 400 instead of letting the DB unique-constraint error surface as a 500.
+    existing = db.query(models.Employee).filter(models.Employee.email == employee.email).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
     db_employee = models.Employee(**employee.dict())
     db.add(db_employee)
     db.commit()
@@ -74,8 +80,28 @@ def create_leave_request(req: LeaveRequestCreate, db: Session = Depends(get_db))
     if not employee:
         raise HTTPException(status_code=404, detail="Employee not found")
 
-    # NOTE: no validation that end_date >= start_date here (see BUG-01)
-    # NOTE: no check for overlapping/duplicate requests here (see BUG-02)
+    # FIX (BUG-02): reject an inverted date range instead of storing it.
+    if req.end_date < req.start_date:
+        raise HTTPException(status_code=400, detail="end_date must be on or after start_date")
+
+    # FIX (BUG-05): reject a request that overlaps an existing PENDING/APPROVED
+    # request for the same employee (REJECTED requests don't block new ones).
+    overlapping = (
+        db.query(models.LeaveRequest)
+        .filter(
+            models.LeaveRequest.employee_id == req.employee_id,
+            models.LeaveRequest.status != "REJECTED",
+            models.LeaveRequest.start_date <= req.end_date,
+            models.LeaveRequest.end_date >= req.start_date,
+        )
+        .first()
+    )
+    if overlapping:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Overlaps existing leave request id={overlapping.id} "
+                   f"({overlapping.start_date} to {overlapping.end_date})",
+        )
 
     db_req = models.LeaveRequest(**req.dict())
     db.add(db_req)
@@ -98,13 +124,26 @@ def approve_leave_request(request_id: int, db: Session = Depends(get_db)):
     if not req:
         raise HTTPException(status_code=404, detail="Leave request not found")
 
-    # NOTE: no check that req.status == "PENDING" before approving (see BUG-03)
+    # FIX (BUG-03): only a PENDING request can be approved - blocks re-approving
+    # an already-APPROVED request and blocks approving a REJECTED one.
+    if req.status != "PENDING":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot approve a request with status '{req.status}'; only PENDING requests can be approved",
+        )
+
     days = (req.end_date - req.start_date).days + 1
-
     employee = db.query(models.Employee).filter(models.Employee.id == req.employee_id).first()
-    # NOTE: no check that employee.leave_balance >= days before deducting (see BUG-04)
-    employee.leave_balance -= days
 
+    # FIX (BUG-04): don't allow approval to push the balance negative.
+    if days > employee.leave_balance:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Insufficient leave balance: request needs {days} day(s), "
+                   f"employee has {employee.leave_balance} remaining",
+        )
+
+    employee.leave_balance -= days
     req.status = "APPROVED"
     db.commit()
     db.refresh(req)
@@ -116,6 +155,14 @@ def reject_leave_request(request_id: int, db: Session = Depends(get_db)):
     req = db.query(models.LeaveRequest).filter(models.LeaveRequest.id == request_id).first()
     if not req:
         raise HTTPException(status_code=404, detail="Leave request not found")
+
+    # Same guard as approve (BUG-03 fix): only a PENDING request can be rejected.
+    if req.status != "PENDING":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot reject a request with status '{req.status}'; only PENDING requests can be rejected",
+        )
+
     req.status = "REJECTED"
     db.commit()
     db.refresh(req)

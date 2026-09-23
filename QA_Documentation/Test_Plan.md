@@ -49,7 +49,11 @@ case design, test execution, defect reporting, and retesting.
 - `Test_Summary_Dashboard.html` — pass/fail and defect-severity summary
 
 ## 7. Summary of Results
-14 test cases executed → **8 Passed / 6 Failed**, resulting in **5 defects**
-logged (two test cases mapped to the same root-cause defect, BUG-03). See
-`Bug_Report_Log.xlsx` for full details. All 5 defects are open, pending fix,
-before this build would be considered fit for a regression pass.
+**Initial cycle:** 14 test cases executed → 8 Passed / 6 Failed, resulting in
+5 defects logged (two test cases mapped to the same root-cause defect,
+BUG-03). See `Bug_Report_Log.xlsx` for full details.
+
+**Regression cycle:** all 5 defects were fixed and retested against the
+Regression suite in `Test_Cases.xlsx` — all 7 regression test cases now
+pass. Root cause and fix detail for each defect is in
+`Bug_Fix_Report.xlsx`. All 5 defects are Closed.

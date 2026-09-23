@@ -38,7 +38,8 @@
 </head>
 <body>
   <h1>QA Test Summary — Employee Leave Management System</h1>
-  <p class="sub">Manual functional testing · 14 test cases executed · 23 Sep 2026</p>
+  <p class="sub">Manual functional testing · 14 test cases (initial cycle) + 7 regression retests · 23 Sep 2026</p>
+  <p class="sub" style="margin-top:-20px">Chart below reflects the initial cycle, before fixes. All 5 defects have since been fixed and retested — see Bug_Fix_Report.xlsx.</p>
 
   <div class="grid">
     <div class="card"><div class="num accent">14</div><div class="lbl">Test cases run</div></div>
@@ -59,20 +60,20 @@
   </div>
 
   <div class="panel">
-    <h2>Open Defects</h2>
+    <h2>Defects — All Closed</h2>
     <table>
       <thead><tr><th>Bug ID</th><th>Module</th><th>Summary</th><th>Severity</th><th>Status</th></tr></thead>
       <tbody>
-        <tr><td>BUG-01</td><td>Employee API</td><td>Duplicate email causes 500 error instead of validation</td><td><span class="badge b-med">Medium</span></td><td>Open</td></tr>
-        <tr><td>BUG-02</td><td>Leave Request API</td><td>Accepts end date earlier than start date</td><td><span class="badge b-high">High</span></td><td>Open</td></tr>
-        <tr><td>BUG-03</td><td>Approval Workflow</td><td>No status guard — request can be re-approved / approved after rejection</td><td><span class="badge b-crit">Critical</span></td><td>Open</td></tr>
-        <tr><td>BUG-04</td><td>Approval Workflow</td><td>Leave balance not validated — can go negative</td><td><span class="badge b-crit">Critical</span></td><td>Open</td></tr>
-        <tr><td>BUG-05</td><td>Leave Request API</td><td>No duplicate/overlap check on submission</td><td><span class="badge b-med">Medium</span></td><td>Open</td></tr>
+        <tr><td>BUG-01</td><td>Employee API</td><td>Duplicate email causes 500 error instead of validation</td><td><span class="badge b-med">Medium</span></td><td>Closed</td></tr>
+        <tr><td>BUG-02</td><td>Leave Request API</td><td>Accepts end date earlier than start date</td><td><span class="badge b-high">High</span></td><td>Closed</td></tr>
+        <tr><td>BUG-03</td><td>Approval Workflow</td><td>No status guard — request can be re-approved / approved after rejection</td><td><span class="badge b-crit">Critical</span></td><td>Closed</td></tr>
+        <tr><td>BUG-04</td><td>Approval Workflow</td><td>Leave balance not validated — can go negative</td><td><span class="badge b-crit">Critical</span></td><td>Closed</td></tr>
+        <tr><td>BUG-05</td><td>Leave Request API</td><td>No duplicate/overlap check on submission</td><td><span class="badge b-med">Medium</span></td><td>Closed</td></tr>
       </tbody>
     </table>
   </div>
 
-  <footer>Test artifacts: Test_Plan.md · Test_Cases.xlsx · Bug_Report_Log.xlsx</footer>
+  <footer>Test artifacts: Test_Plan.md · Test_Cases.xlsx · Bug_Report_Log.xlsx · Bug_Fix_Report.xlsx</footer>
 
 <script>
 const dark = {color:'#9aa1ac', font:{family:'Segoe UI'}};

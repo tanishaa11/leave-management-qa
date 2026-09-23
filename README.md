@@ -52,11 +52,13 @@ leave-management-system/
 - `Test_Plan.md` — scope, test strategy, entry/exit criteria, and a results summary
 - `Test_Cases.xlsx` — the full test case suite across three sheets: Functional, Regression, Smoke (14 test cases with steps, expected/actual results, status, priority)
 - `Bug_Report_Log.xlsx` — the 5 defects found during execution, with repro steps, severity, priority, and environment
+- `Bug_Fix_Report.xlsx` — root cause, the fix applied, and retest result for each of the 5 defects
 - `Test_Summary_Dashboard.html` — a visual pass/fail and defect-severity summary, built with Chart.js
 
 **scripts/**
 - `build_test_cases.py` — generates `Test_Cases.xlsx` (openpyxl)
 - `build_bug_log.py` — generates `Bug_Report_Log.xlsx` (openpyxl)
+- `build_bug_fix_report.py` — generates `Bug_Fix_Report.xlsx` (openpyxl)
 
 ## Running It
 ```bash
@@ -71,21 +73,26 @@ docker run -p 8000:8000 leave-mgmt
 API docs (Swagger) at `http://localhost:8000/docs`.
 
 ## QA Summary
-14 test cases executed → **8 Passed / 6 Failed**, resulting in **5 defects**
-logged (2 Critical, 1 High, 2 Medium).
+**Initial cycle:** 14 test cases executed → 8 Passed / 6 Failed, resulting
+in 5 defects (2 Critical, 1 High, 2 Medium).
 
-| Bug | Issue | Severity |
-|---|---|---|
-| BUG-01 | Duplicate email → 500 error instead of validation | Medium |
-| BUG-02 | Leave request accepted with end date before start date | High |
-| BUG-03 | No status guard — request can be re-approved / approved after rejection | Critical |
-| BUG-04 | Leave balance not validated — can go negative | Critical |
-| BUG-05 | No duplicate/overlap check on leave request submission | Medium |
+**Regression cycle:** all 5 defects fixed and retested → all now **Closed**.
 
-Full details in `QA_Documentation/` — start with `Test_Plan.md` for approach,
-or `Bug_Report_Log.xlsx` for the defects.
+| Bug | Issue | Severity | Status |
+|---|---|---|---|
+| BUG-01 | Duplicate email → 500 error instead of validation | Medium | Closed |
+| BUG-02 | Leave request accepted with end date before start date | High | Closed |
+| BUG-03 | No status guard — request can be re-approved / approved after rejection | Critical | Closed |
+| BUG-04 | Leave balance not validated — can go negative | Critical | Closed |
+| BUG-05 | No duplicate/overlap check on leave request submission | Medium | Closed |
+
+Full details in `QA_Documentation/`:
+- `Test_Plan.md` for approach
+- `Bug_Report_Log.xlsx` for how each defect was found
+- `Bug_Fix_Report.xlsx` for root cause + the fix applied to each
+- `Test_Cases.xlsx` (Regression sheet) for the retest results
 
 ## Next Steps
-- Fix BUG-03 and BUG-04 first (status + balance checks on approve)
-- Re-run the Regression suite in `Test_Cases.xlsx` against the fixes
-- Add automated tests for the approval workflow specifically
+- Add automated tests for the approval workflow, since that's where every
+  bug clustered
+- Add authentication/authorization (out of scope for this test cycle)
